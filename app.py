@@ -167,7 +167,9 @@ def issuetabledisp():
         totalList= IssueTable.query.all()
     return jsonify({"IssueTable": totalList})
 
-
+@app.route("/")
+def home():
+    return "<h1>Departmental stocks page</h1>"
 
 if __name__ == "__main__":
     app.run(debug=True)
