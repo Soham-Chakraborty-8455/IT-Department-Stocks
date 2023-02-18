@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 ####======================CONFIGURATIONS STARTS===============================================================####
 app = Flask(__name__)
 db = SQLAlchemy()
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///DepartmentalStocks.db"
 db.init_app(app)
+CORS(app)
 
 ####================================DATABASE MODEL STARTS=============================================================================================####
 class LabDetails(db.Model):
@@ -18,6 +20,7 @@ class LabDetails(db.Model):
     IPaddress= db.Column(db.String, nullable=False)
     Warrenty= db.Column(db.String, nullable=False)
     OS= db.Column(db.String, nullable=False)
+    status= db.Column(db.Boolean, nullable= False)
 
 class FaultRegister(db.Model):
     slno= db.Column(db.Integer, primary_key=True)
@@ -86,8 +89,11 @@ def labdetailsinput():
         IPaddress= request.json['IPaddress']
         Warrenty= request.json['Warrenty']
         OS= request.json['OS']
-        entry= LabDetails(SystemNumber= SystemNumber, datePurchased=datePurchased, Brand=Brand, suppliedby=suppliedby, specifications=specifications, IPaddress=IPaddress, Warrenty=Warrenty, OS=OS )
+        status= True
+        entry= LabDetails(SystemNumber= SystemNumber, datePurchased=datePurchased, Brand=Brand, suppliedby=suppliedby, specifications=specifications, IPaddress=IPaddress, Warrenty=Warrenty, OS=OS, status= status )
         with app.app_context():
+            LabDetails.query.filter_by(status=True).update({ LabDetails.status : False})
+            db.session.commit()
             db.session.add(entry)
             db.session.execute()
     return jsonify({"status": "uploaded"})
@@ -118,7 +124,7 @@ def Movementsinput():
             db.session.commit()
     return  jsonify({"Status":"Uploaded"})
 
-@app.route("IssueTableinput", methods=["POST", "GET"])
+@app.route("/IssueTableinput", methods=["POST", "GET"])
 def IssueTableInput():
     if request.method=="POST":
         ConcernedPerson= request.json['ConcernedPerson']
@@ -160,6 +166,8 @@ def issuetabledisp():
     with app.app_context():
         totalList= IssueTable.query.all()
     return jsonify({"IssueTable": totalList})
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
