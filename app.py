@@ -59,7 +59,7 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    return render_template('index.html')
+    return "<h1>Departmental stocks page</h1>"
 
 @app.route("/facultyregisterinput", methods=["POST", "GET"])
 def facultyregisterinputs():
@@ -167,9 +167,7 @@ def issuetabledisp():
         totalList= IssueTable.query.all()
     return jsonify({"IssueTable": totalList})
 
-@app.route("/")
-def home():
-    return "<h1>Departmental stocks page</h1>"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
